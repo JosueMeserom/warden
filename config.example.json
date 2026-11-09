@@ -1,0 +1,20 @@
+{
+  "serversDir": "/home/you/minecraft",
+  "domain": "example.net",
+  "rootServer": "lobby",
+  "language": "en",
+  "owner": "Alex",
+  "notify": ["/usr/bin/node", "/home/you/bot/notify.mjs"],
+  "aliases": { "survival": "lobby" },
+  "ownPlugins": [],
+  "ecosystem": "/home/you/.config/warden/ecosystem.config.cjs",
+  "geyserCerts": "/home/you/.local/share/caddy/certificates/acme-v02.api.letsencrypt.org-directory",
+  "caddy": { "file": "/etc/caddy/Caddyfile", "bluemap": "/etc/caddy/bluemap.caddy", "webconsole": "/etc/caddy/webconsole.caddy", "planHost": "127.0.0.1" },
+  "gate": { "port": 25565, "lazymcOffset": 20000, "discordPort": 8790, "codeMinutes": 30 },
+  "panel": {
+    "port": 8791,
+    "url": "https://panel.example.net",
+    "sso": { "url": "https://sso.example.net/warden", "subject": "owner", "label": "My site" },
+    "notifyEditFlag": null
+  }
+}

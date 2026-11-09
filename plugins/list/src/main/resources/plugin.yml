@@ -1,0 +1,7 @@
+name: WardenList
+version: 2.0
+main: io.github.josuemeserom.warden.WardenList
+api-version: '1.21'
+description: Enforces the central Warden whitelist inside the server (for Bedrock players, who don't go through WardenGate).
+author: JosueMeserom
+website: https://github.com/JosueMeserom/warden

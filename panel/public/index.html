@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WardenPanel</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Sign in -->
+<section id="v-login" class="view center" hidden>
+  <form id="f-login" class="card login">
+    <img src="favicon.svg" alt="" class="logo-big">
+    <h1>WardenPanel</h1>
+    <p class="sub">Minecraft server panel</p>
+    <label>Username <input name="user" autocomplete="username" required></label>
+    <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+    <button class="primary">Sign in</button>
+    <a class="btn secondary" href="/login/sso" id="sso" hidden></a>
+    <p class="error" id="e-login"></p>
+    <label class="lang">🌐 <select aria-label="Language / Idioma"></select></label>
+  </form>
+</section>
+
+<!-- Change the password (required the first time) -->
+<section id="v-password" class="view center" hidden>
+  <form id="f-password" class="card login">
+    <h1>Your password</h1>
+    <p class="sub" id="password-hint">Change it to one of your own (at least 10 characters).</p>
+    <label>Current password <input name="current" type="password" autocomplete="current-password" required></label>
+    <label>New <input name="next" type="password" autocomplete="new-password" minlength="10" required></label>
+    <label>Repeat it <input name="again" type="password" autocomplete="new-password" minlength="10" required></label>
+    <button class="primary">Save</button>
+    <button type="button" class="secondary" id="password-cancel" hidden>Cancel</button>
+    <p class="error" id="e-password"></p>
+  </form>
+</section>
+
+<!-- Panel -->
+<section id="v-panel" class="view" hidden>
+  <header class="topbar">
+    <span class="brand"><img src="favicon.svg" alt=""> WardenPanel</span>
+    <nav id="servers" class="tabs"></nav>
+    <div class="me">
+      <button id="b-menu" class="secondary small" aria-haspopup="true"><span id="me-name"></span> ▾</button>
+      <div id="menu" class="menu" hidden>
+        <button data-go="users" class="owner-only">👥 Users</button>
+        <button data-go="log" class="owner-only">📜 Log</button>
+        <button data-go="settings" class="owner-only">⚙️ Notifications</button>
+        <button data-go="tabs">↺ Default tabs</button>
+        <button data-go="password" class="not-owner">🔑 Change password</button>
+        <label class="lang">🌐 <select aria-label="Language / Idioma"></select></label>
+        <button id="b-logout">🚪 Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="server" class="grid">
+    <div class="column">
+      <article class="card" id="c-info"></article>
+      <article class="card">
+        <h2>Players online <span class="count" id="n-players"></span></h2>
+        <div id="c-players" class="table-scroll"></div>
+      </article>
+    </div>
+    <article class="card big">
+      <nav class="subtabs" id="sub">
+        <button data-tab="activity" class="active">💬 Activity & chat</button>
+        <button data-tab="map">🗺 Map</button>
+        <button data-tab="players">👥 Players</button>
+        <button data-tab="leaderboard">🏆 Leaderboard</button>
+        <button data-tab="charts">📈 Charts</button>
+        <button data-tab="investigate" data-perm="investigate">🔎 Investigate</button>
+        <button data-tab="relations">🕸 Relationships</button>
+        <button data-tab="world">⚙️ World</button>
+        <button data-tab="console" data-perm="console">⌨️ Console</button>
+        <button data-tab="access">🛡 Access</button>
+      </nav>
+      <section data-panel="activity">
+        <div class="filters" id="filters">
+          <label><input type="checkbox" value="join" checked> Joins</label>
+          <label><input type="checkbox" value="leave" checked> Leaves</label>
+          <label><input type="checkbox" value="chat" checked> Chat</label>
+          <label><input type="checkbox" value="death" checked> Deaths</label>
+          <label><input type="checkbox" value="advancement" checked> Advancements</label>
+          <label><input type="checkbox" value="travel" checked> Travel</label>
+          <label><input type="checkbox" value="sleep" checked> Beds</label>
+        </div>
+        <ol id="events" class="events"></ol>
+        <form id="f-chat" class="row" data-perm="chat">
+          <input name="text" placeholder="Write in the game chat…" maxlength="250" autocomplete="off">
+          <button class="primary">Send</button>
+        </form>
+      </section>
+      <section data-panel="players" hidden>
+        <div class="players">
+          <div class="player-list">
+            <input id="p-search" placeholder="Search player…" autocomplete="off">
+            <div class="chips count" data-account-filter></div>
+            <div class="chips" id="p-filters">
+              <button data-f="" class="active">All</button><button data-f="online">Online</button>
+              <button data-f="listed">Whitelist</button><button data-f="op">Op</button><button data-f="banned">Banned</button>
+            </div>
+            <ul id="p-list" class="list selectable"></ul>
+          </div>
+          <div id="profile" class="profile"><p class="empty">Pick a player.</p></div>
+        </div>
+      </section>
+      <section data-panel="leaderboard" hidden>
+        <p class="sub">Play style: what each player stands out at compared with the rest (and their rank, 0 to 100). Click a column to sort.</p>
+        <div class="chips count" data-account-filter></div>
+        <div id="t-leaderboard" class="table-scroll"></div>
+      </section>
+      <section data-panel="charts" hidden>
+        <div class="chips" id="c-days"><button data-days="1">24 h</button><button data-days="7" class="active">7 days</button><button data-days="30">30 days</button></div>
+        <div id="charts" class="charts"></div>
+      </section>
+      <section data-panel="investigate" hidden>
+        <div class="row" style="align-items:center">
+          <div class="chips" id="i-severity"><button data-s="" class="active">Everything</button><button data-s="high">🔴 Severe</button><button data-s="medium">🟠 Medium</button><button data-s="low">⚪ Minor</button></div>
+          <label class="hint" style="display:flex;gap:.3rem;align-items:center;white-space:nowrap"><input type="checkbox" id="i-reviewed"> show reviewed</label>
+        </div>
+        <p class="hint" id="i-since"></p>
+        <div id="i-alerts" class="alerts"></div>
+        <div class="two">
+          <div><h3>⛏ Mining (X-ray)</h3><p class="hint" data-l>What gives X-ray away: <b>hidden</b> diamonds (no face exposed to air, water or lava) per 1000 stone blocks mined. Mining blind gives ~1-4. Those in caves don't count, and the world's lifetime total is only a rough guide (it includes caves).</p><div id="i-miners" class="table-scroll"></div></div>
+          <div><h3>🏠 Bases</h3><p class="hint">Areas where someone has placed lots of blocks (since the plugin was installed).</p><ul id="i-bases" class="list"></ul></div>
+        </div>
+        <h3>⌨️ Player commands</h3><div id="i-commands" class="table-scroll"></div>
+      </section>
+      <section data-panel="relations" hidden>
+        <p class="sub" id="r-source"></p>
+        <div class="relations"><div class="graph" id="r-graph"></div><ul id="r-list" class="list"></ul></div>
+      </section>
+      <section data-panel="world" hidden>
+        <div id="w-content"></div>
+      </section>
+      <section data-panel="console" hidden>
+        <pre id="console" class="console"></pre>
+        <form id="f-console" class="row">
+          <input name="command" placeholder="Command (without /), e.g. list" autocomplete="off" spellcheck="false">
+          <button class="primary">Send</button>
+        </form>
+      </section>
+      <section data-panel="access" hidden>
+        <div class="access">
+          <div>
+            <h3>Whitelist <span class="hint" id="requires"></span></h3>
+            <form id="f-whitelist" class="row" data-perm="whitelist">
+              <input name="player" placeholder="Name (Bedrock: with a leading &quot;.&quot;)" maxlength="17" autocomplete="off">
+              <button class="primary">Add</button>
+            </form>
+            <ul id="l-whitelist" class="list"></ul>
+          </div>
+          <div>
+            <h3>Operators</h3>
+            <ul id="l-ops" class="list"></ul>
+            <h3>Banned</h3>
+            <ul id="l-ban" class="list"></ul>
+          </div>
+        </div>
+      </section>
+      <section data-panel="map" hidden>
+        <div class="chips" id="map-view"><button data-view="bluemap" class="active">🗺 BlueMap</button><button data-view="heat">🔥 Heat map</button></div>
+        <div id="heat" class="heat" hidden>
+          <div class="row centered"><select id="heat-world"></select><span class="hint" id="heat-info">Where people spend the most time (every 30 s), 💀 deaths and 🏠 bases. Click to see a spot in BlueMap.</span></div>
+          <canvas id="heat-canvas" width="900" height="560"></canvas><div class="hint" id="heat-spot"></div>
+        </div>
+        <iframe id="map" class="map" title="Map" loading="lazy" referrerpolicy="same-origin"></iframe>
+        <p class="hint" id="map-missing" hidden>This server doesn't have a published map.</p>
+      </section>
+    </article>
+  </main>
+
+  <!-- Owner only -->
+  <main id="users" class="page" hidden>
+    <article class="card">
+      <h2>Panel users</h2>
+      <p class="sub" data-l>Each person signs in with their own username and password. When you add someone you'll see a temporary password <b>only once</b>; they'll have to change it the first time they sign in.</p>
+      <div id="t-users" class="table-scroll"></div>
+    </article>
+    <article class="card">
+      <h2 id="u-title">New user</h2>
+      <form id="f-user" class="form">
+        <label>Username <input name="name" pattern="[\w.\-]{1,32}" required autocomplete="off"></label>
+        <label>Their Minecraft name <input name="minecraft" maxlength="17" autocomplete="off" placeholder="(optional)"></label>
+        <div id="u-perms" class="perms"></div>
+        <div class="row">
+          <button class="primary">Save</button>
+          <button type="button" class="secondary" id="u-new">New</button>
+        </div>
+        <p class="ok" id="u-password"></p>
+        <p class="error" id="e-user"></p>
+      </form>
+    </article>
+  </main>
+  <main id="log" class="page" hidden>
+    <article class="card">
+      <h2>Log</h2>
+      <div class="row"><input id="log-filter" placeholder="Filter (user, server, action…)"></div>
+      <div id="t-log" class="table-scroll"></div>
+    </article>
+  </main>
+  <main id="settings" class="page" hidden>
+    <article class="card">
+      <h2>Notifications</h2>
+      <p class="sub">What others do from the panel. "Instantly": one message per action. "In the summary": one message per session that keeps updating. Your own actions don't notify you.</p>
+      <form id="f-settings" class="form"></form>
+    </article>
+  </main>
+</section>
+
+<!-- Actions on a player -->
+<dialog id="d-player" class="dialog">
+  <form method="dialog" id="f-player">
+    <h3 id="dp-name"></h3>
+    <div class="actions" id="dp-actions"></div>
+    <div id="dp-extra" class="form"></div>
+    <p class="error" id="e-player"></p>
+    <div class="row"><button value="close" class="secondary">Close</button></div>
+  </form>
+</dialog>
+<div id="toast" class="toast" hidden></div>
+<script src="es.js"></script>
+<script src="app.js"></script>
+<script src="players.js"></script>
+<script src="investigate.js"></script>
+</body>
+</html>

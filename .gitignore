@@ -1,0 +1,8 @@
+node_modules/
+build/
+target/
+__pycache__/
+*.tmp
+# Site settings and data never go here: they live in WARDEN_HOME (see README).
+site/
+*.env

@@ -1,0 +1,7 @@
+name: WardenPanel
+version: 2.0
+main: io.github.josuemeserom.warden.WardenPanel
+api-version: '1.21'
+description: Live, read-only server data for the WardenPanel web panel (loopback only, with a key).
+author: JosueMeserom
+website: https://github.com/JosueMeserom/warden
